@@ -15,6 +15,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { Appeal, useAppeals, useSubmitAppeal } from "../data/queries";
+import FileUpload from "../_component/ui/FileUpload";
 
 
 const AppealsPage = () => {
@@ -381,7 +382,7 @@ const AppealsPage = () => {
                 </button>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-6 text-slate-800">
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-2">
                     Offense ID
@@ -448,32 +449,12 @@ const AppealsPage = () => {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Supporting Evidence
-                  </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#0052CC] transition-colors">
-                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-600 text-sm">
-                      Drag and drop files here or click to browse
-                    </p>
-                    <p className="text-gray-400 text-xs mt-1">
-                      Supports: PDF, JPG, PNG, MP4 (max 10MB each)
-                    </p>
-                    <input
-                      type="file"
-                      multiple
-                      accept=".pdf,.jpg,.jpeg,.png,.mp4"
-                      className="hidden"
-                      onChange={(e) =>
-                        setAppealForm({
-                          ...appealForm,
-                          evidence: e.target.files?.[0] || null,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
+                     <FileUpload
+          file={appealForm.evidence}
+          onFileChange={(file: File | null) =>
+            setAppealForm({ ...appealForm, evidence: file })
+          }
+        />
 
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <div className="flex items-start space-x-2">

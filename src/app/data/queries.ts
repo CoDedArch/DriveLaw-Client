@@ -1,4 +1,5 @@
 // hooks/useDriverApi.ts
+import { format } from "path";
 import { useState, useEffect, useCallback } from "react";
 
 // Types matching your Pydantic models
@@ -274,13 +275,33 @@ export const useApiMutation = () => {
       try {
         setLoading(true);
         setError(null);
-
-        const response = await fetchWithCredentials(endpoint, {
+       
+        const fetchOptions: RequestInit = {
           method,
-          ...(data && { body: JSON.stringify(data) }),
-        });
+          credentials: "include", // Assuming fetchWithCredentials includes credentials
+        };
 
-        return response;
+        if (data) {
+          if (data instanceof FormData) {
+            // For FormData, let the browser set Content-Type (multipart/form-data)
+            fetchOptions.body = data;
+          } else {
+            // For JSON data, set Content-Type to application/json
+            fetchOptions.body = JSON.stringify(data);
+            fetchOptions.headers = {
+              "Content-Type": "application/json",
+            };
+          }
+        }
+
+        const response = await fetch(endpoint, fetchOptions); // Replace fetchWithCredentials with fetch or update as needed
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || "Request failed");
+        }
+
+        return await response.json();
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Unknown error";
@@ -316,7 +337,7 @@ export const useSubmitAppeal = () => {
         formData.append("evidence", appealData.evidence);
       }
 
-      return mutate("/api/driver/appeals", formData, "POST");
+      return mutate(`${API_BASE}/appeals`, formData, "POST");
     },
     [mutate]
   );
