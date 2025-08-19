@@ -66,9 +66,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
     // Role-based items
     if (user?.role === "admin") {
       items.push(
-        { component: <UsersIcon />, href: "/users", onClick: () => onTabChange('users'), disabled: !isActive },
+        // { component: <UsersIcon />, href: "/users", onClick: () => onTabChange('users'), disabled: !isActive },
         { component: <DriversIcon />, href: "/drivers", onClick: () => onTabChange('drivers'), disabled: !isActive },
-        { component: <VehiclesIcon />, href: "/vehicles", onClick: () => onTabChange('vehicles'), disabled: !isActive },
+        // { component: <VehiclesIcon />, href: "/vehicles", onClick: () => onTabChange('vehicles'), disabled: !isActive },
         { component: <OffensesIcon />, href: "/offenses", onClick: () => onTabChange('offenses'), disabled: !isActive },
         { component: <FinesIcon />, href: "/fines", onClick: () => onTabChange('fines'), disabled: !isActive },
         { component: <AppealsIcon />, href: "/appeals", onClick: () => onTabChange('appeals'), disabled: !isActive },
@@ -79,7 +79,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
     if (user?.role === "officer") {
       items.push(
         { component: <DriversIcon />, href: "/drivers", onClick: () => onTabChange('drivers'), disabled: !isActive },
-        { component: <VehiclesIcon />, href: "/vehicles", onClick: () => onTabChange('vehicles'), disabled: !isActive },
+        // { component: <VehiclesIcon />, href: "/vehicles", onClick: () => onTabChange('vehicles'), disabled: !isActive },
         { component: <OffensesIcon />, href: "/offenses", onClick: () => onTabChange('offenses'), disabled: !isActive },
         { component: <FinesIcon />, href: "/fines", onClick: () => onTabChange('fines'), disabled: !isActive },
         { component: <ReportsIcon />, href: "/reports", onClick: () => onTabChange('reports'), disabled: !isActive }
@@ -108,7 +108,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex md:w-64 bg-white text-gray-800 border-r border-gray-100 flex-col justify-between py-6 pl-4 shadow-sm backdrop-blur-sm bg-opacity-95">
         <nav className="flex flex-col gap-4 flex-1 w-full pl-10">
-          <Link href={"/dashboard"}>
+          <Link href={"/"}>
             <DashboardIcon />
           </Link>
 
@@ -118,29 +118,20 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
                 <>
                   {user?.role === "admin" && (
                     <>
-                      <Link href={"/users"} onClick={() => onTabChange('users')}>
+                      {/* <Link href={"/users"} onClick={() => onTabChange('users')}>
                         <UsersIcon />
-                      </Link>
-                      <Link href={"/drivers"} onClick={() => onTabChange('drivers')}>
+                      </Link> */}
+                      <Link href={"/admin/drivers"} onClick={() => onTabChange('drivers')}>
                         <DriversIcon />
                       </Link>
-                      <Link href={"/vehicles"} onClick={() => onTabChange('vehicles')}>
-                        <VehiclesIcon />
-                      </Link>
-                      <Link href={"/offenses"} onClick={() => onTabChange('offenses')}>
+                      <Link href={"/offenses/admin/offenses"} onClick={() => onTabChange('offenses')}>
                         <OffensesIcon />
                       </Link>
                       <Link href={"/fines"} onClick={() => onTabChange('fines')}>
                         <FinesIcon />
                       </Link>
-                      <Link href={"/appeals"} onClick={() => onTabChange('appeals')}>
+                      <Link href={"/appeals/admin"} onClick={() => onTabChange('appeals')}>
                         <AppealsIcon />
-                      </Link>
-                      <Link href={"/reports"} onClick={() => onTabChange('reports')}>
-                        <ReportsIcon />
-                      </Link>
-                      <Link href={"/settings"} onClick={() => onTabChange('settings')}>
-                        <SettingsIcon />
                       </Link>
                     </>
                   )}
@@ -150,9 +141,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
                       <Link href={"/drivers"} onClick={() => onTabChange('drivers')}>
                         <DriversIcon />
                       </Link>
-                      <Link href={"/vehicles"} onClick={() => onTabChange('vehicles')}>
+                      {/* <Link href={"/vehicles"} onClick={() => onTabChange('vehicles')}>
                         <VehiclesIcon />
-                      </Link>
+                      </Link> */}
                       <Link href={"/offenses"} onClick={() => onTabChange('offenses')}>
                         <OffensesIcon />
                       </Link>
