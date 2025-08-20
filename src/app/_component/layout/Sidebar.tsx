@@ -88,8 +88,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
 
     if (user?.role === "driver") {
       items.push(
-        { component: <OffensesIcon />, href: "/my-offenses", onClick: () => onTabChange('my-offenses'), disabled: !isActive },
-        { component: <FinesIcon />, href: "/my-fines", onClick: () => onTabChange('my-fines'), disabled: !isActive },
+        { component: <OffensesIcon />, href: "/offenses", onClick: () => onTabChange('my-offenses'), disabled: !isActive },
+        { component: <FinesIcon />, href: "/fines", onClick: () => onTabChange('my-fines'), disabled: !isActive },
         { component: <AppealsIcon />, href: "/appeals", onClick: () => onTabChange('appeals'), disabled: !isActive },
         { component: <ProfileIcon />, href: "/profile", onClick: () => onTabChange('profile'), disabled: !isActive }
       );
@@ -138,7 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
 
                   {user?.role === "officer" && (
                     <>
-                      <Link href={"/drivers"} onClick={() => onTabChange('drivers')}>
+                      <Link href={"/admin/drivers"} onClick={() => onTabChange('drivers')}>
                         <DriversIcon />
                       </Link>
                       {/* <Link href={"/vehicles"} onClick={() => onTabChange('vehicles')}>
@@ -153,26 +153,26 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
                       <Link href={"/fines"} onClick={() => onTabChange('fines')}>
                         <FinesIcon />
                       </Link>
-                      <Link href={"/reports"} onClick={() => onTabChange('reports')}>
+                      {/* <Link href={"/reports"} onClick={() => onTabChange('reports')}>
                         <ReportsIcon />
-                      </Link>
+                      </Link> */}
                     </>
                   )}
 
                   {user?.role === "driver" && (
                     <>
-                      <Link href={"/my-offenses"} onClick={() => onTabChange('my-offenses')}>
+                      <Link href={"/offenses"} onClick={() => onTabChange('my-offenses')}>
                         <OffensesIcon />
                       </Link>
-                      <Link href={"/my-fines"} onClick={() => onTabChange('my-fines')}>
+                      <Link href={"/fines"} onClick={() => onTabChange('my-fines')}>
                         <FinesIcon />
                       </Link>
                       <Link href={"/appeals"} onClick={() => onTabChange('appeals')}>
                         <AppealsIcon />
                       </Link>
-                      <Link href={"/profile"} onClick={() => onTabChange('profile')}>
+                      {/* <Link href={"/profile"} onClick={() => onTabChange('profile')}>
                         <ProfileIcon />
-                      </Link>
+                      </Link> */}
                     </>
                   )}
                 </>
@@ -242,9 +242,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
                       <div className="opacity-40 cursor-not-allowed">
                         <AppealsIcon />
                       </div>
-                      <div className="opacity-40 cursor-not-allowed">
+                      {/* <div className="opacity-40 cursor-not-allowed">
                         <ProfileIcon />
-                      </div>
+                      </div> */}
                     </>
                   )}
                 </>
