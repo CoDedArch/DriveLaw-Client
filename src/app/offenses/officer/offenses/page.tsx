@@ -16,13 +16,7 @@ import {
   Bell,
   Edit3,
 } from "lucide-react"
-import {
-  useOfficerOffenses,
-  useOffenseDetails,
-  useDriverRecord,
-  type OffenseListItem,
-  type OffenseFilters,
-} from "../../../data/use-officer-api"
+import { useOfficerOffenses, useOffenseDetails, useDriverRecord, type OffenseListItem } from "../../../data/use-officer-api"
 
 interface Driver {
   name: string
@@ -33,7 +27,7 @@ interface Driver {
 }
 
 type StatusFilter = "all" | "PENDING_PAYMENT" | "UNDER_APPEAL" | "PAID" | "OVERDUE"
-type SeverityFilter = "all" | "high" | "medium" | "low"
+type SeverityFilter = "all" | "MAJOR" | "MODERATE" | "MINOR" // Fix severity filter values to match backend enums
 type TypeFilter = "all" | "Speeding" | "Red Light Violation" | "Illegal Parking" | "Lane Violation"
 type SortBy = "offense_date" | "fine_amount" | "user_id" | "severity"
 type SortOrder = "asc" | "desc"
@@ -46,9 +40,11 @@ const OfficerOffensesPage = () => {
   const [sortBy, setSortBy] = useState<SortBy>("offense_date")
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc")
 
-  const filters: OffenseFilters = {
+  const filters = {
     status: statusFilter !== "all" ? statusFilter : undefined,
     offense_type: typeFilter !== "all" ? typeFilter : undefined,
+    severity: severityFilter !== "all" ? severityFilter : undefined,
+    search: searchQuery || undefined,
     sort_by: sortBy,
     sort_order: sortOrder,
     limit: 100,
@@ -62,17 +58,7 @@ const OfficerOffensesPage = () => {
   const { offenseDetail } = useOffenseDetails(selectedOffenseNumber || "")
   const { driverRecord, loading: driverLoading, error: driverError } = useDriverRecord(selectedUserId || "")
 
-  const filteredOffenses: OffenseListItem[] = offenses.filter((offense) => {
-    if (!searchQuery) return true
-
-    const matchesSearch =
-      offense.offense_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      offense.user_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      offense.vehicle_registration?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      offense.location.toLowerCase().includes(searchQuery.toLowerCase())
-
-    return matchesSearch
-  })
+  const filteredOffenses: OffenseListItem[] = offenses
 
   console.log("[v0] Backend Filtering Debug:", {
     appliedFilters: filters,
@@ -83,11 +69,11 @@ const OfficerOffensesPage = () => {
 
   const getSeverityColor = (severity: OffenseListItem["severity"]): string => {
     switch (severity) {
-      case "high":
+      case "MAJOR":
         return "border-l-red-500"
-      case "medium":
+      case "MODERATE":
         return "border-l-yellow-500"
-      case "low":
+      case "MINOR":
         return "border-l-green-500"
       default:
         return "border-l-gray-500"
@@ -237,9 +223,9 @@ const OfficerOffensesPage = () => {
               onChange={(e) => setSeverityFilter(e.target.value as SeverityFilter)}
             >
               <option value="all">All Severities</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
+              <option value="MAJOR">Major</option>
+              <option value="MODERATE">Moderate</option>
+              <option value="MINOR">Minor</option>
             </select>
 
             <button
@@ -625,7 +611,6 @@ const OfficerOffensesPage = () => {
               </button>
               <button
                 onClick={() => {
-                  // Trigger refetch by resetting and setting the selectedUserId
                   const currentUserId = selectedUserId
                   setSelectedUserId(null)
                   setTimeout(() => setSelectedUserId(currentUserId), 100)

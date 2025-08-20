@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 
 export interface Appeal {
   appeal_number: string
@@ -39,7 +39,7 @@ export interface OffenseDetail {
   location: string
   fine_amount: number
   status: "PENDING_PAYMENT" | "UNDER_APPEAL" | "PAID" | "OVERDUE"
-  severity: string
+  severity: "MAJOR" | "MODERATE" | "MINOR"
   description?: string
   evidence_urls?: string[]
   due_date: string
@@ -95,7 +95,7 @@ export interface OffenseListItem {
   location: string
   fine_amount: number
   status: "PENDING_PAYMENT" | "UNDER_APPEAL" | "PAID" | "OVERDUE"
-  severity: "high" | "medium" | "low"
+  severity: "MAJOR" | "MODERATE" | "MINOR"
   description?: string
   due_date: string
   vehicle_registration?: string
@@ -113,6 +113,8 @@ export interface OffenseFilters {
   sort_order?: "asc" | "desc"
   limit?: number
   offset?: number
+  severity?: string
+  search?: string
 }
 
 // Base API configuration for officer endpoints
@@ -226,48 +228,81 @@ export const useOfficerOffenses = (filters: OffenseFilters = {}) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const isMountedRef = useRef(true)
+
+  useEffect(() => {
+    isMountedRef.current = true
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
+
+  const filtersString = useMemo(() => {
+    const cleanFilters = {
+      status: filters.status && filters.status !== "all" ? filters.status : undefined,
+      offense_type: filters.offense_type && filters.offense_type !== "all" ? filters.offense_type : undefined,
+      severity: filters.severity && filters.severity !== "all" ? filters.severity : undefined,
+      search: filters.search?.trim() || undefined,
+      sort_by: filters.sort_by || "offense_date",
+      sort_order: filters.sort_order || "desc",
+      limit: filters.limit || 100,
+      offset: filters.offset || 0,
+    }
+    return JSON.stringify(cleanFilters)
+  }, [
+    filters.status,
+    filters.offense_type,
+    filters.severity,
+    filters.search,
+    filters.sort_by,
+    filters.sort_order,
+    filters.limit,
+    filters.offset,
+  ])
+
   const fetchOffenses = useCallback(async () => {
+    if (!isMountedRef.current) return
+
     try {
       setLoading(true)
-      console.log("[v0] Fetching officer offenses from:", `${OFFICER_API_BASE}/offenses`)
-      
+      setError(null)
+
+      const parsedFilters = JSON.parse(filtersString)
+
       // Build query parameters
       const params = new URLSearchParams()
-      if (filters.status && filters.status !== "all") {
-        params.append("status", filters.status)
-      }
-      if (filters.offense_type && filters.offense_type !== "all") {
-        params.append("offense_type", filters.offense_type)
-      }
-      if (filters.sort_by) {
-        params.append("sort_by", filters.sort_by)
-      }
-      if (filters.sort_order) {
-        params.append("sort_order", filters.sort_order)
-      }
-      if (filters.limit) {
-        params.append("limit", filters.limit.toString())
-      }
-      if (filters.offset) {
-        params.append("offset", filters.offset.toString())
-      }
+      Object.entries(parsedFilters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, value.toString())
+        }
+      })
 
       const url = `${OFFICER_API_BASE}/offenses${params.toString() ? `?${params.toString()}` : ""}`
       console.log("[v0] Fetching officer offenses from:", url)
-      console.log("[v0] Applied filters:", filters)
+      console.log("[v0] Applied filters:", parsedFilters)
 
       const result: OffenseListItem[] = await fetchWithCredentials(url)
-      console.log("[v0] Offenses data received:", result)
 
-      setOffenses(result)
-      setError(null)
+      if (isMountedRef.current) {
+        console.log("[v0] Backend Filtering Debug:", {
+          appliedFilters: parsedFilters,
+          totalOffenses: result.length,
+          filteredCount: result.length,
+          searchQuery: parsedFilters.search || "",
+        })
+        setOffenses(result)
+      }
     } catch (err) {
-      console.log("[v0] Error fetching offenses:", err)
-      setError(err instanceof Error ? err.message : "Unknown error")
+      if (isMountedRef.current) {
+        console.log("[v0] Error fetching offenses:", err)
+        setError(err instanceof Error ? err.message : "Unknown error")
+      }
     } finally {
-      setLoading(false)
+      if (isMountedRef.current) {
+        setLoading(false)
+      }
     }
-  }, [])
+  }, [filtersString]) // Use stable string dependency instead of object
 
   useEffect(() => {
     fetchOffenses()
@@ -275,6 +310,7 @@ export const useOfficerOffenses = (filters: OffenseFilters = {}) => {
 
   return { offenses, loading, error, refetch: fetchOffenses }
 }
+
 export const useOffenseDetails = (offenseNumber: string) => {
   const [offenseDetail, setOffenseDetail] = useState<OffenseDetail | null>(null)
   const [loading, setLoading] = useState(false)
