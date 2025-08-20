@@ -16,7 +16,13 @@ import {
   Bell,
   Edit3,
 } from "lucide-react"
-import { useOfficerOffenses, useOffenseDetails, useDriverRecord, type OffenseListItem } from "../../../data/use-officer-api"
+import {
+  useOfficerOffenses,
+  useOffenseDetails,
+  useDriverRecord,
+  useOfficerDashboard,
+  type OffenseListItem,
+} from "../../../data/use-officer-api"
 
 interface Driver {
   name: string
@@ -51,6 +57,7 @@ const OfficerOffensesPage = () => {
   }
 
   const { offenses, loading, error, refetch } = useOfficerOffenses(filters)
+  const { analytics, loading: dashboardLoading } = useOfficerDashboard()
 
   const [selectedOffenseNumber, setSelectedOffenseNumber] = useState<string | null>(null)
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
@@ -128,7 +135,11 @@ const OfficerOffensesPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm">Total Offenses</p>
-                <p className="text-2xl font-bold text-[#0A2540]">{offenses.length}</p>
+                {dashboardLoading ? (
+                  <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+                ) : (
+                  <p className="text-2xl font-bold text-[#0A2540]">{analytics?.total_offenses || 0}</p>
+                )}
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
                 <Ticket className="h-6 w-6 text-blue-600" />
@@ -139,10 +150,32 @@ const OfficerOffensesPage = () => {
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">Pending Payments</p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {offenses.filter((o) => o.status === "PENDING_PAYMENT").length}
-                </p>
+                <p className="text-gray-600 text-sm">Paid Offenses</p>
+                {dashboardLoading ? (
+                  <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+                ) : (
+                  <p className="text-2xl font-bold text-green-600">
+                    {offenses.filter((o) => o.status === "PAID").length}
+                  </p>
+                )}
+              </div>
+              <div className="bg-green-100 p-3 rounded-lg">
+                <ClipboardList className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm">Unpaid Offenses</p>
+                {dashboardLoading ? (
+                  <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+                ) : (
+                  <p className="text-2xl font-bold text-yellow-600">
+                    {offenses.filter((o) => o.status === "PENDING_PAYMENT" || o.status === "OVERDUE").length}
+                  </p>
+                )}
               </div>
               <div className="bg-yellow-100 p-3 rounded-lg">
                 <AlertTriangle className="h-6 w-6 text-yellow-600" />
@@ -153,27 +186,17 @@ const OfficerOffensesPage = () => {
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">Under Appeal</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {offenses.filter((o) => o.status === "UNDER_APPEAL").length}
-                </p>
+                <p className="text-gray-600 text-sm">Offenses Under Review</p>
+                {dashboardLoading ? (
+                  <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+                ) : (
+                  <p className="text-2xl font-bold text-blue-600">
+                    {analytics?.pending_appeals || offenses.filter((o) => o.status === "UNDER_APPEAL").length}
+                  </p>
+                )}
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
-                <ClipboardList className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm">Overdue</p>
-                <p className="text-2xl font-bold text-red-600">
-                  {offenses.filter((o) => o.status === "OVERDUE").length}
-                </p>
-              </div>
-              <div className="bg-red-100 p-3 rounded-lg">
-                <Bell className="h-6 w-6 text-red-600" />
+                <Bell className="h-6 w-6 text-blue-600" />
               </div>
             </div>
           </div>
@@ -232,7 +255,7 @@ const OfficerOffensesPage = () => {
               onClick={handleResetFilters}
               className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
             >
-              <RefreshCw className="h-5 w-5" />
+              <RefreshCw className={`h-5 w-5 ${loading ? "animate-spin" : ""}`} />
               <span>Reset</span>
             </button>
           </div>
@@ -265,103 +288,153 @@ const OfficerOffensesPage = () => {
         {/* Offenses List */}
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-[#0A2540]">Traffic Offenses ({filteredOffenses.length})</h3>
+            <h3 className="text-xl font-bold text-[#0A2540] flex items-center gap-2">
+              Traffic Offenses ({loading ? "..." : filteredOffenses.length})
+              {loading && <RefreshCw className="h-5 w-5 animate-spin text-blue-600" />}
+            </h3>
           </div>
 
           <div className="space-y-4">
-            {filteredOffenses.map((offense) => (
-              <div
-                key={offense.id}
-                className={`border-l-4 ${getSeverityColor(
-                  offense.severity,
-                )} border border-gray-200 rounded-r-lg p-6 hover:bg-gray-50 transition-colors cursor-pointer`}
-                onClick={() => setSelectedOffenseNumber(offense.offense_number)}
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-4 mb-2">
-                      <h4 className="text-[#0A2540] font-semibold text-lg">{offense.offense_type}</h4>
-                      <span className="text-gray-500 text-sm">#{offense.offense_number}</span>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm border ${getStatusBadgeClasses(offense.status)}`}
-                      >
-                        {offense.status.replace("_", " ")}
-                      </span>
+            {loading
+              ? // Skeleton loading cards
+                Array.from({ length: 3 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="border-l-4 border-l-gray-300 border border-gray-200 rounded-r-lg p-6 animate-pulse"
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4 mb-2">
+                          <div className="h-6 w-32 bg-gray-200 rounded"></div>
+                          <div className="h-4 w-20 bg-gray-200 rounded"></div>
+                          <div className="h-6 w-24 bg-gray-200 rounded-full"></div>
+                        </div>
+                        <div className="h-4 w-full bg-gray-200 rounded mb-2"></div>
+                        <div className="grid md:grid-cols-3 gap-4">
+                          <div>
+                            <div className="h-3 w-12 bg-gray-200 rounded mb-1"></div>
+                            <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                          </div>
+                          <div>
+                            <div className="h-3 w-12 bg-gray-200 rounded mb-1"></div>
+                            <div className="h-4 w-20 bg-gray-200 rounded"></div>
+                          </div>
+                          <div>
+                            <div className="h-3 w-12 bg-gray-200 rounded mb-1"></div>
+                            <div className="h-4 w-28 bg-gray-200 rounded"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="h-8 w-20 bg-gray-200 rounded mb-2"></div>
+                        <div className="h-3 w-24 bg-gray-200 rounded mb-1"></div>
+                        <div className="h-3 w-20 bg-gray-200 rounded"></div>
+                      </div>
                     </div>
-                    <p className="text-gray-700 mb-2">{offense.description}</p>
-                    <div className="grid md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-gray-600 mb-1">Driver</p>
-                        <p className="text-gray-900">
-                          {offense.user_name} ({offense.driver_license})
+                    <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                      <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                      <div className="flex space-x-3">
+                        <div className="h-8 w-24 bg-gray-200 rounded"></div>
+                        <div className="h-8 w-16 bg-gray-200 rounded"></div>
+                        <div className="h-8 w-10 bg-gray-200 rounded"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              : // Actual offense cards
+                filteredOffenses.map((offense) => (
+                  <div
+                    key={offense.id}
+                    className={`border-l-4 ${getSeverityColor(
+                      offense.severity,
+                    )} border border-gray-200 rounded-r-lg p-6 hover:bg-gray-50 transition-colors cursor-pointer`}
+                    onClick={() => setSelectedOffenseNumber(offense.offense_number)}
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4 mb-2">
+                          <h4 className="text-[#0A2540] font-semibold text-lg">{offense.offense_type}</h4>
+                          <span className="text-gray-500 text-sm">#{offense.offense_number}</span>
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm border ${getStatusBadgeClasses(offense.status)}`}
+                          >
+                            {offense.status.replace("_", " ")}
+                          </span>
+                        </div>
+                        <p className="text-gray-700 mb-2">{offense.description}</p>
+                        <div className="grid md:grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <p className="text-gray-600 mb-1">Driver</p>
+                            <p className="text-gray-900">
+                              {offense.user_name} ({offense.driver_license})
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600 mb-1">Vehicle</p>
+                            <p className="text-gray-900">{offense.vehicle_registration}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600 mb-1">Location</p>
+                            <p className="text-gray-900">{offense.location}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-[#0A2540]">${offense.fine_amount.toFixed(2)}</p>
+                        <p className="text-gray-600 text-sm">
+                          {offense.offense_date} at {offense.offense_time}
                         </p>
+                        <p className="text-gray-600 text-sm">Due: {offense.due_date}</p>
                       </div>
-                      <div>
-                        <p className="text-gray-600 mb-1">Vehicle</p>
-                        <p className="text-gray-900">{offense.vehicle_registration}</p>
+                    </div>
+
+                    <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                      <div className="flex items-center space-x-2 text-gray-600">
+                        <Camera className="h-5 w-5 text-gray-600" />
+                        <span className="text-sm">Evidence available</span>
                       </div>
-                      <div>
-                        <p className="text-gray-600 mb-1">Location</p>
-                        <p className="text-gray-900">{offense.location}</p>
+
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedUserId(offense.user_id.toString())
+                          }}
+                          className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2"
+                        >
+                          <User className="h-4 w-4" />
+                          <span>View Driver</span>
+                        </button>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            // Handle edit offense
+                            console.log("Edit offense:", offense.offense_number)
+                          }}
+                          className="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors flex items-center space-x-2"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                          <span>Edit</span>
+                        </button>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            // Handle download evidence
+                            console.log("Download evidence for:", offense.offense_number)
+                          }}
+                          className="bg-gray-100 text-gray-600 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          <Download className="h-4 w-4" />
+                        </button>
                       </div>
                     </div>
                   </div>
+                ))}
 
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-[#0A2540]">${offense.fine_amount.toFixed(2)}</p>
-                    <p className="text-gray-600 text-sm">
-                      {offense.offense_date} at {offense.offense_time}
-                    </p>
-                    <p className="text-gray-600 text-sm">Due: {offense.due_date}</p>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-                  <div className="flex items-center space-x-2 text-gray-600">
-                    <Camera className="h-4 w-4" />
-                    <span className="text-sm">Evidence available</span>
-                  </div>
-
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setSelectedUserId(offense.user_id.toString())
-                      }}
-                      className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2"
-                    >
-                      <User className="h-4 w-4" />
-                      <span>View Driver</span>
-                    </button>
-
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        // Handle edit offense
-                        console.log("Edit offense:", offense.offense_number)
-                      }}
-                      className="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors flex items-center space-x-2"
-                    >
-                      <Edit3 className="h-4 w-4" />
-                      <span>Edit</span>
-                    </button>
-
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        // Handle download evidence
-                        console.log("Download evidence for:", offense.offense_number)
-                      }}
-                      className="bg-gray-100 text-gray-600 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-                    >
-                      <Download className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {filteredOffenses.length === 0 && (
+            {!loading && filteredOffenses.length === 0 && (
               <div className="text-center py-12">
                 <AlertTriangle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-600 font-semibold">No offenses found</p>

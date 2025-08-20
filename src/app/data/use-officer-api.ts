@@ -11,6 +11,14 @@ export interface Appeal {
   status: "under_review" | "approved" | "rejected" | "pending_documentation"
   submission_date: string
 }
+export interface DashboardAnalytics {
+  total_users: number
+  total_offenses: number
+  total_fines_amount: number
+  total_paid_amount: number
+  pending_appeals: number
+  active_users: number
+}
 
 export interface AppealDetail {
   id: string
@@ -403,4 +411,32 @@ export const useAppealDecision = () => {
   }, [])
 
   return { makeDecision, loading, error }
+}
+export const useOfficerDashboard = () => {
+  const [analytics, setAnalytics] = useState<DashboardAnalytics | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchDashboard = useCallback(async () => {
+    try {
+      setLoading(true)
+      console.log("[v0] Fetching dashboard analytics from:", `${OFFICER_API_BASE}/dashboard`)
+      const result: DashboardAnalytics = await fetchWithCredentials(`${OFFICER_API_BASE}/dashboard`)
+      console.log("[v0] Dashboard analytics received:", result)
+
+      setAnalytics(result)
+      setError(null)
+    } catch (err) {
+      console.log("[v0] Error fetching dashboard analytics:", err)
+      setError(err instanceof Error ? err.message : "Failed to fetch dashboard analytics")
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchDashboard()
+  }, [fetchDashboard])
+
+  return { analytics, loading, error, refetch: fetchDashboard }
 }
