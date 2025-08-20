@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState } from "react";
 import {
@@ -19,15 +19,23 @@ import {
   Loader2,
 } from "lucide-react";
 import { useAdminAppealsManagement } from "../../../components/UseAdminAppeals";
+import EvidenceDisplay from "@/components/EvidenceDisplay";
 
 // Type definitions for the review modal
 type ReviewDecision = "approved" | "rejected";
-type StatusFilter = "all" | "Under Review" | "Approved" | "Rejected" | "Pending Review";
+type StatusFilter =
+  | "all"
+  | "Under Review"
+  | "Approved"
+  | "Rejected"
+  | "Pending Review";
 type PriorityFilter = "all" | "high" | "medium" | "low";
 
 const AdminAppealsPage = () => {
   const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
-  const [reviewDecision, setReviewDecision] = useState<ReviewDecision | null>(null);
+  const [reviewDecision, setReviewDecision] = useState<ReviewDecision | null>(
+    null
+  );
   const [reviewNotes, setReviewNotes] = useState<string>("");
 
   // Use the comprehensive appeals management hook
@@ -97,14 +105,14 @@ const AdminAppealsPage = () => {
 
   const handleReviewAppeal = async (decision: "approved" | "rejected") => {
     if (!selectedAppeal || !reviewNotes.trim()) return;
-    
+
     try {
       if (decision === "approved") {
         await approveAppeal(selectedAppeal, reviewNotes);
       } else {
         await rejectAppeal(selectedAppeal, reviewNotes);
       }
-      
+
       setShowReviewModal(false);
       setReviewDecision(null);
       setReviewNotes("");
@@ -117,23 +125,23 @@ const AdminAppealsPage = () => {
 
   const handleDownloadEvidence = async (evidenceId: string) => {
     if (!selectedAppeal) return;
-    
+
     try {
       await downloadEvidence(selectedAppeal, evidenceId);
     } catch (error) {
-      console.error('Failed to download evidence:', error);
+      console.error("Failed to download evidence:", error);
     }
   };
 
   const handleExportData = async () => {
     try {
-      await exportAppeals('csv', {
+      await exportAppeals("csv", {
         search: searchQuery,
-        status: statusFilter !== 'all' ? statusFilter : undefined,
-        priority: priorityFilter !== 'all' ? priorityFilter : undefined,
+        status: statusFilter !== "all" ? statusFilter : undefined,
+        priority: priorityFilter !== "all" ? priorityFilter : undefined,
       });
     } catch (error) {
-      console.error('Failed to export appeals:', error);
+      console.error("Failed to export appeals:", error);
     }
   };
 
@@ -142,9 +150,11 @@ const AdminAppealsPage = () => {
       <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
         <div className="bg-white p-6 rounded-lg shadow-md">
           <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-red-600 mb-2">Error Loading Appeals</h2>
+          <h2 className="text-xl font-bold text-red-600 mb-2">
+            Error Loading Appeals
+          </h2>
           <p className="text-gray-600 mb-4">{appealsError}</p>
-          <button 
+          <button
             onClick={refreshAll}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
           >
@@ -155,7 +165,9 @@ const AdminAppealsPage = () => {
     );
   }
 
-  const selectedAppealData = appeals.find(appeal => appeal.id === selectedAppeal);
+  const selectedAppealData = appeals.find(
+    (appeal) => appeal.id === selectedAppeal
+  );
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
@@ -186,7 +198,11 @@ const AdminAppealsPage = () => {
               <div>
                 <p className="text-gray-600 text-sm">Total Appeals</p>
                 <p className="text-2xl font-bold text-[#0A2540]">
-                  {appealsLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : appealsStats.totalCount}
+                  {appealsLoading ? (
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  ) : (
+                    appealsStats.totalCount
+                  )}
                 </p>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
@@ -200,7 +216,11 @@ const AdminAppealsPage = () => {
               <div>
                 <p className="text-gray-600 text-sm">Pending Review</p>
                 <p className="text-2xl font-bold text-orange-600">
-                  {appealsLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : appealsStats.pendingReviewCount}
+                  {appealsLoading ? (
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  ) : (
+                    appealsStats.pendingReviewCount
+                  )}
                 </p>
               </div>
               <div className="bg-orange-100 p-3 rounded-lg">
@@ -214,7 +234,11 @@ const AdminAppealsPage = () => {
               <div>
                 <p className="text-gray-600 text-sm">Under Review</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {appealsLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : appealsStats.underReviewCount}
+                  {appealsLoading ? (
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  ) : (
+                    appealsStats.underReviewCount
+                  )}
                 </p>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
@@ -228,7 +252,11 @@ const AdminAppealsPage = () => {
               <div>
                 <p className="text-gray-600 text-sm">Approved</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {appealsLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : appealsStats.approvedCount}
+                  {appealsLoading ? (
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  ) : (
+                    appealsStats.approvedCount
+                  )}
                 </p>
               </div>
               <div className="bg-green-100 p-3 rounded-lg">
@@ -242,7 +270,11 @@ const AdminAppealsPage = () => {
               <div>
                 <p className="text-gray-600 text-sm">Rejected</p>
                 <p className="text-2xl font-bold text-red-600">
-                  {appealsLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : appealsStats.rejectedCount}
+                  {appealsLoading ? (
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  ) : (
+                    appealsStats.rejectedCount
+                  )}
                 </p>
               </div>
               <div className="bg-red-100 p-3 rounded-lg">
@@ -281,7 +313,9 @@ const AdminAppealsPage = () => {
             <select
               className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#0052CC] focus:border-transparent"
               value={priorityFilter}
-              onChange={(e) => setPriorityFilter(e.target.value as PriorityFilter)}
+              onChange={(e) =>
+                setPriorityFilter(e.target.value as PriorityFilter)
+              }
             >
               <option value="all">All Priorities</option>
               <option value="high">High</option>
@@ -302,7 +336,9 @@ const AdminAppealsPage = () => {
               className="flex items-center space-x-2 bg-[#0052CC] text-white px-4 py-2 rounded-lg hover:bg-[#003D99] transition-colors"
               disabled={appealsLoading}
             >
-              <RefreshCw className={`h-5 w-5 ${appealsLoading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-5 w-5 ${appealsLoading ? "animate-spin" : ""}`}
+              />
               <span>Refresh</span>
             </button>
           </div>
@@ -324,7 +360,7 @@ const AdminAppealsPage = () => {
             <h3 className="text-xl font-bold text-[#0A2540]">
               Appeal Cases ({appeals.length})
             </h3>
-            <button 
+            <button
               onClick={handleExportData}
               disabled={exportLoading || appealsLoading}
               className="flex items-center space-x-2 bg-[#0052CC] text-white px-4 py-2 rounded-lg hover:bg-[#003D99] transition-colors disabled:opacity-50"
@@ -370,19 +406,25 @@ const AdminAppealsPage = () => {
                       <td className="py-4 text-gray-700">
                         <div>
                           <p className="font-medium">{appeal.offense.type}</p>
-                          <p className="text-sm text-gray-500">#{appeal.offenseId}</p>
+                          <p className="text-sm text-gray-500">
+                            #{appeal.offenseId}
+                          </p>
                         </div>
                       </td>
                       <td className="py-4 text-gray-700">
                         <div>
                           <p className="font-medium">{appeal.driver.name}</p>
-                          <p className="text-sm text-gray-500">{appeal.driver.license}</p>
+                          <p className="text-sm text-gray-500">
+                            {appeal.driver.license}
+                          </p>
                         </div>
                       </td>
                       <td className="py-4 text-gray-700">
                         {new Date(appeal.submittedDate).toLocaleDateString()}
                       </td>
-                      <td className="py-4 text-gray-700">{appeal.assignedTo.name}</td>
+                      <td className="py-4 text-gray-700">
+                        {appeal.assignedTo.name}
+                      </td>
                       <td className="py-4">
                         <span
                           className={`px-3 py-1 rounded-full text-xs ${getPriorityColor(
@@ -415,8 +457,12 @@ const AdminAppealsPage = () => {
               {appeals.length === 0 && (
                 <div className="text-center py-12">
                   <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 font-semibold">No appeals found</p>
-                  <p className="text-gray-500">Try adjusting your search criteria</p>
+                  <p className="text-gray-600 font-semibold">
+                    No appeals found
+                  </p>
+                  <p className="text-gray-500">
+                    Try adjusting your search criteria
+                  </p>
                 </div>
               )}
             </div>
@@ -480,81 +526,94 @@ const AdminAppealsPage = () => {
 
                   <div className="grid md:grid-cols-2 gap-4 mb-6">
                     <div>
-                      <h4 className="text-gray-600 text-sm mb-2">Submitted Date</h4>
+                      <h4 className="text-gray-600 text-sm mb-2">
+                        Submitted Date
+                      </h4>
                       <p className="text-[#0A2540] font-semibold">
-                        {new Date(selectedAppealData.submittedDate).toLocaleDateString()}
+                        {new Date(
+                          selectedAppealData.submittedDate
+                        ).toLocaleDateString()}
                       </p>
                     </div>
                     <div>
                       <h4 className="text-gray-600 text-sm mb-2">Due Date</h4>
                       <p className="text-[#0A2540] font-semibold">
-                        {new Date(selectedAppealData.dueDate).toLocaleDateString()}
+                        {new Date(
+                          selectedAppealData.dueDate
+                        ).toLocaleDateString()}
                       </p>
                     </div>
                     <div>
-                      <h4 className="text-gray-600 text-sm mb-2">Assigned Officer</h4>
+                      <h4 className="text-gray-600 text-sm mb-2">
+                        Assigned Officer
+                      </h4>
                       <p className="text-[#0A2540] font-semibold">
                         {selectedAppealData.assignedTo.name}
                       </p>
                     </div>
                     {selectedAppealData.reviewDate && (
                       <div>
-                        <h4 className="text-gray-600 text-sm mb-2">Review Date</h4>
+                        <h4 className="text-gray-600 text-sm mb-2">
+                          Review Date
+                        </h4>
                         <p className="text-[#0A2540] font-semibold">
-                          {new Date(selectedAppealData.reviewDate).toLocaleDateString()}
+                          {new Date(
+                            selectedAppealData.reviewDate
+                          ).toLocaleDateString()}
                         </p>
                       </div>
                     )}
                   </div>
 
                   <div className="mb-6">
-                    <h4 className="text-gray-600 text-sm mb-2">Driver Information</h4>
+                    <h4 className="text-gray-600 text-sm mb-2">
+                      Driver Information
+                    </h4>
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-[#0A2540] font-semibold">{selectedAppealData.driver.name}</p>
-                      <p className="text-gray-600">License: {selectedAppealData.driver.license}</p>
-                      <p className="text-gray-600">Email: {selectedAppealData.driver.email}</p>
-                      <p className="text-gray-600">Phone: {selectedAppealData.driver.phone}</p>
+                      <p className="text-[#0A2540] font-semibold">
+                        {selectedAppealData.driver.name}
+                      </p>
+                      <p className="text-gray-600">
+                        License: {selectedAppealData.driver.license}
+                      </p>
+                      <p className="text-gray-600">
+                        Email: {selectedAppealData.driver.email}
+                      </p>
+                      <p className="text-gray-600">
+                        Phone: {selectedAppealData.driver.phone}
+                      </p>
                     </div>
                   </div>
 
                   <div className="mb-6">
-                    <h4 className="text-gray-600 text-sm mb-2">Appeal Reason</h4>
+                    <h4 className="text-gray-600 text-sm mb-2">
+                      Appeal Reason
+                    </h4>
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-gray-700">{selectedAppealData.reason}</p>
+                      <p className="text-gray-700">
+                        {selectedAppealData.reason}
+                      </p>
                     </div>
                   </div>
 
                   {selectedAppealData.reviewNotes && (
                     <div className="mb-6">
-                      <h4 className="text-gray-600 text-sm mb-2">Review Notes</h4>
+                      <h4 className="text-gray-600 text-sm mb-2">
+                        Review Notes
+                      </h4>
                       <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                        <p className="text-gray-700">{selectedAppealData.reviewNotes}</p>
+                        <p className="text-gray-700">
+                          {selectedAppealData.reviewNotes}
+                        </p>
                       </div>
                     </div>
                   )}
 
                   <div className="mb-6">
-                    <h4 className="text-gray-600 text-sm mb-2">Evidence Submitted</h4>
-                    <div className="space-y-2">
-                      {selectedAppealData.evidence.map((file, index) => (
-                        <div
-                          key={index}
-                          className="bg-gray-50 p-3 rounded-lg flex items-center justify-between"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <FileText className="h-5 w-5 text-gray-600" />
-                            <span className="text-gray-700">{file}</span>
-                          </div>
-                          <button 
-                            onClick={() => handleDownloadEvidence(file)}
-                            className="text-blue-600 hover:text-blue-700 transition-colors"
-                            disabled={actionsLoading}
-                          >
-                            <Download className="h-5 w-5" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
+                    <h4 className="text-gray-600 text-sm mb-2">
+                      Evidence Submitted
+                    </h4>
+                    <EvidenceDisplay />
                   </div>
                 </div>
 
@@ -571,41 +630,55 @@ const AdminAppealsPage = () => {
                           {selectedAppealData.offense.type}
                         </h4>
                       </div>
-                      <p className="text-red-700 mb-3">{selectedAppealData.offense.description}</p>
-                      
+                      <p className="text-red-700 mb-3">
+                        {selectedAppealData.offense.description}
+                      </p>
+
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <p className="text-red-600 text-sm">Offense ID</p>
-                          <p className="text-red-800 font-medium">#{selectedAppealData.offense.id}</p>
+                          <p className="text-red-800 font-medium">
+                            #{selectedAppealData.offense.id}
+                          </p>
                         </div>
                         <div>
                           <p className="text-red-600 text-sm">Date</p>
                           <p className="text-red-800 font-medium">
-                            {new Date(selectedAppealData.offense.date).toLocaleDateString()}
+                            {new Date(
+                              selectedAppealData.offense.date
+                            ).toLocaleDateString()}
                           </p>
                         </div>
                         <div>
                           <p className="text-red-600 text-sm">Location</p>
-                          <p className="text-red-800 font-medium">{selectedAppealData.offense.location}</p>
+                          <p className="text-red-800 font-medium">
+                            {selectedAppealData.offense.location}
+                          </p>
                         </div>
                         <div>
                           <p className="text-red-600 text-sm">Fine Amount</p>
-                          <p className="text-red-800 font-medium">${selectedAppealData.offense.fine.toFixed(2)}</p>
+                          <p className="text-red-800 font-medium">
+                            ${selectedAppealData.offense.fine.toFixed(2)}
+                          </p>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Action buttons for appeals under review */}
-                  {(selectedAppealData.status === "Under Review" || selectedAppealData.status === "Pending Review") && (
+                  {(selectedAppealData.status === "Under Review" ||
+                    selectedAppealData.status === "Pending Review") && (
                     <div className="space-y-4">
                       <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                         <div className="flex items-center space-x-3 mb-3">
                           <Scale className="h-5 w-5 text-blue-600" />
-                          <h4 className="text-blue-800 font-medium">Review Actions</h4>
+                          <h4 className="text-blue-800 font-medium">
+                            Review Actions
+                          </h4>
                         </div>
                         <p className="text-blue-700 text-sm mb-4">
-                          Carefully review all evidence and driver statements before making a decision.
+                          Carefully review all evidence and driver statements
+                          before making a decision.
                         </p>
                         <div className="flex space-x-3">
                           <button
@@ -663,7 +736,9 @@ const AdminAppealsPage = () => {
                 </div>
               )}
               <h2 className="text-xl font-bold text-[#0A2540]">
-                {reviewDecision === "approved" ? "Approve Appeal" : "Reject Appeal"}
+                {reviewDecision === "approved"
+                  ? "Approve Appeal"
+                  : "Reject Appeal"}
               </h2>
             </div>
 
@@ -688,7 +763,9 @@ const AdminAppealsPage = () => {
                 Cancel
               </button>
               <button
-                onClick={() => reviewDecision && handleReviewAppeal(reviewDecision)}
+                onClick={() =>
+                  reviewDecision && handleReviewAppeal(reviewDecision)
+                }
                 disabled={!reviewNotes.trim() || actionsLoading}
                 className={`${
                   reviewDecision === "approved"
@@ -699,7 +776,9 @@ const AdminAppealsPage = () => {
                 {actionsLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  `Confirm ${reviewDecision === "approved" ? "Approval" : "Rejection"}`
+                  `Confirm ${
+                    reviewDecision === "approved" ? "Approval" : "Rejection"
+                  }`
                 )}
               </button>
             </div>

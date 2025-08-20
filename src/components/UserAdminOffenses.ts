@@ -99,7 +99,7 @@ interface OffenseUpdateRequest {
 }
 
 // API configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // Helper function to get auth headers
 const getAuthHeaders = () => {
@@ -151,7 +151,7 @@ export const useOffenses = (
       console.log('Fetching offenses with params:', params.toString());
 
       const response = await fetch(
-        `${API_BASE_URL}/admin/offenses?${params}`,
+        `${API_BASE_URL}admin/offenses?${params}`,
         {
           headers: getAuthHeaders(),
           credentials: 'include',
@@ -207,7 +207,7 @@ export const useOffenseDetails = (offenseId: string | null) => {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/admin/offenses/${id}`,
+        `${API_BASE_URL}admin/offenses/${id}`,
         {
           headers: getAuthHeaders(),
           credentials: 'include',
@@ -263,7 +263,7 @@ export const useOffenseStats = (
       if (endDate) params.append('end_date', endDate);
 
       const response = await fetch(
-        `${API_BASE_URL}/admin/offenses/stats/overview?${params}`,
+        `${API_BASE_URL}admin/offenses/stats/overview?${params}`,
         {
           headers: getAuthHeaders(),
           credentials: 'include',
@@ -310,7 +310,7 @@ export const useOffenseActions = () => {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/admin/offenses/${offenseId}`,
+        `${API_BASE_URL}admin/offenses/${offenseId}`,
         {
           method: 'PATCH',
           headers: getAuthHeaders(),

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState } from "react";
 import {
@@ -16,14 +16,30 @@ import {
   Calendar,
 } from "lucide-react";
 import { useAdminOffenseManagement } from "../../../../components/UserAdminOffenses";
+import EvidenceDisplay from "@/components/EvidenceDisplay";
 
-type StatusFilter = "all" | "Pending Payment" | "Under Appeal" | "Paid" | "Overdue" | "Cancelled";
+type StatusFilter =
+  | "all"
+  | "Pending Payment"
+  | "Under Appeal"
+  | "Paid"
+  | "Overdue"
+  | "Cancelled";
 type SeverityFilter = "all" | "high" | "medium" | "low";
-type TypeFilter = "all" | "Speeding" | "Red Light Violation" | "Illegal Parking" | "Lane Violation" | "DUI" | "Reckless Driving";
+type TypeFilter =
+  | "all"
+  | "Speeding"
+  | "Red Light Violation"
+  | "Illegal Parking"
+  | "Lane Violation"
+  | "DUI"
+  | "Reckless Driving";
 
 const AdminOffensesPage = () => {
   const [showUpdateModal, setShowUpdateModal] = useState<boolean>(false);
-  const [updateAction, setUpdateAction] = useState<"paid" | "cancel" | "fine" | "">("");
+  const [updateAction, setUpdateAction] = useState<
+    "paid" | "cancel" | "fine" | ""
+  >("");
   const [updateReason, setUpdateReason] = useState<string>("");
   const [newFineAmount, setNewFineAmount] = useState<string>("");
   const [paymentReference, setPaymentReference] = useState<string>("");
@@ -111,7 +127,7 @@ const AdminOffensesPage = () => {
 
   const confirmOffenseAction = async () => {
     if (!selectedOffense || !updateAction) return;
-    
+
     setActionLoading(true);
     try {
       switch (updateAction) {
@@ -135,13 +151,13 @@ const AdminOffensesPage = () => {
           await updateFineAmount(selectedOffense, amount, updateReason);
           break;
       }
-      
+
       setShowUpdateModal(false);
       setUpdateAction("");
       setUpdateReason("");
       setNewFineAmount("");
       setPaymentReference("");
-      
+
       // Refresh data to reflect changes
       refreshAll();
     } catch (err) {
@@ -191,7 +207,9 @@ const AdminOffensesPage = () => {
               <div>
                 <p className="text-gray-600 text-sm">Total Offenses</p>
                 <p className="text-2xl font-bold text-[#0A2540]">
-                  {overallStatsLoading ? "Loading..." : totalOffenses.toLocaleString()}
+                  {overallStatsLoading
+                    ? "Loading..."
+                    : totalOffenses.toLocaleString()}
                 </p>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
@@ -205,7 +223,9 @@ const AdminOffensesPage = () => {
               <div>
                 <p className="text-gray-600 text-sm">Pending Payment</p>
                 <p className="text-2xl font-bold text-yellow-600">
-                  {overallStatsLoading ? "Loading..." : pendingPayments.toLocaleString()}
+                  {overallStatsLoading
+                    ? "Loading..."
+                    : pendingPayments.toLocaleString()}
                 </p>
               </div>
               <div className="bg-yellow-100 p-3 rounded-lg">
@@ -219,7 +239,9 @@ const AdminOffensesPage = () => {
               <div>
                 <p className="text-gray-600 text-sm">Under Appeal</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {overallStatsLoading ? "Loading..." : underAppeal.toLocaleString()}
+                  {overallStatsLoading
+                    ? "Loading..."
+                    : underAppeal.toLocaleString()}
                 </p>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
@@ -233,7 +255,9 @@ const AdminOffensesPage = () => {
               <div>
                 <p className="text-gray-600 text-sm">Overdue</p>
                 <p className="text-2xl font-bold text-red-600">
-                  {overallStatsLoading ? "Loading..." : overdue.toLocaleString()}
+                  {overallStatsLoading
+                    ? "Loading..."
+                    : overdue.toLocaleString()}
                 </p>
               </div>
               <div className="bg-red-100 p-3 rounded-lg">
@@ -247,7 +271,9 @@ const AdminOffensesPage = () => {
               <div>
                 <p className="text-gray-600 text-sm">Total Fines</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {overallStatsLoading ? "Loading..." : `$${(overallStats?.totalFines || 0).toLocaleString()}`}
+                  {overallStatsLoading
+                    ? "Loading..."
+                    : `$${(overallStats?.totalFines || 0).toLocaleString()}`}
                 </p>
               </div>
               <div className="bg-green-100 p-3 rounded-lg">
@@ -301,7 +327,9 @@ const AdminOffensesPage = () => {
             <select
               className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#0052CC] focus:border-transparent"
               value={severityFilter}
-              onChange={(e) => setSeverityFilter(e.target.value as SeverityFilter)}
+              onChange={(e) =>
+                setSeverityFilter(e.target.value as SeverityFilter)
+              }
             >
               <option value="all">All Severities</option>
               <option value="high">High</option>
@@ -343,7 +371,9 @@ const AdminOffensesPage = () => {
               className="flex items-center space-x-2 bg-[#0052CC] text-white px-4 py-2 rounded-lg hover:bg-[#003D99] transition-colors"
               disabled={offensesLoading}
             >
-              <RefreshCw className={`h-5 w-5 ${offensesLoading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-5 w-5 ${offensesLoading ? "animate-spin" : ""}`}
+              />
               <span>Refresh</span>
             </button>
           </div>
@@ -403,7 +433,9 @@ const AdminOffensesPage = () => {
                       <td className="py-4 text-gray-700">
                         {new Date(offense.date).toLocaleDateString()}
                       </td>
-                      <td className="py-4 text-gray-700">{offense.officer.name}</td>
+                      <td className="py-4 text-gray-700">
+                        {offense.officer.name}
+                      </td>
                       <td className="py-4 text-gray-700">
                         {offense.driver.name} ({offense.driver.license})
                       </td>
@@ -440,8 +472,12 @@ const AdminOffensesPage = () => {
               {offenses.length === 0 && (
                 <div className="text-center py-12">
                   <AlertTriangle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 font-semibold">No offenses found</p>
-                  <p className="text-gray-500">Try adjusting your search criteria</p>
+                  <p className="text-gray-600 font-semibold">
+                    No offenses found
+                  </p>
+                  <p className="text-gray-500">
+                    Try adjusting your search criteria
+                  </p>
                 </div>
               )}
             </div>
@@ -495,23 +531,29 @@ const AdminOffensesPage = () => {
                   </div>
                   <div>
                     <h4 className="text-gray-600 text-sm mb-2">Location</h4>
-                    <p className="text-[#0A2540] font-semibold">{offenseDetails.location}</p>
+                    <p className="text-[#0A2540] font-semibold">
+                      {offenseDetails.location}
+                    </p>
                   </div>
                   <div>
                     <h4 className="text-gray-600 text-sm mb-2">Officer</h4>
                     <p className="text-[#0A2540] font-semibold">
-                      {offenseDetails.officer.name} (ID: {offenseDetails.officer.id})
+                      {offenseDetails.officer.name} (ID:{" "}
+                      {offenseDetails.officer.id})
                     </p>
                   </div>
                   <div>
                     <h4 className="text-gray-600 text-sm mb-2">Driver</h4>
                     <p className="text-[#0A2540] font-semibold">
-                      {offenseDetails.driver.name} (DL: {offenseDetails.driver.license})
+                      {offenseDetails.driver.name} (DL:{" "}
+                      {offenseDetails.driver.license})
                     </p>
                   </div>
                   <div>
                     <h4 className="text-gray-600 text-sm mb-2">Vehicle</h4>
-                    <p className="text-[#0A2540] font-semibold">{offenseDetails.licensePlate}</p>
+                    <p className="text-[#0A2540] font-semibold">
+                      {offenseDetails.licensePlate}
+                    </p>
                   </div>
                   <div>
                     <h4 className="text-gray-600 text-sm mb-2">Severity</h4>
@@ -544,29 +586,13 @@ const AdminOffensesPage = () => {
                 <div className="mb-6">
                   <h4 className="text-gray-600 text-sm mb-2">Description</h4>
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-gray-700">{offenseDetails.description}</p>
+                    <p className="text-gray-700">
+                      {offenseDetails.description}
+                    </p>
                   </div>
                 </div>
 
-                <div className="mb-8">
-                  <h4 className="text-gray-600 text-sm mb-2">Evidence</h4>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {offenseDetails.evidence.map((file, index) => (
-                      <div
-                        key={index}
-                        className="bg-gray-50 p-4 rounded-lg flex items-center justify-between"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <FileText className="h-5 w-5 text-gray-600" />
-                          <span className="text-gray-700">{file}</span>
-                        </div>
-                        <button className="text-blue-600 hover:text-blue-700 transition-colors">
-                          <Download className="h-5 w-5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <EvidenceDisplay />
 
                 <div className="grid md:grid-cols-3 gap-4">
                   <button
@@ -673,13 +699,17 @@ const AdminOffensesPage = () => {
             {(updateAction === "cancel" || updateAction === "fine") && (
               <div className="mb-6">
                 <label className="block text-gray-600 text-sm mb-2">
-                  {updateAction === "cancel" ? "Cancellation Reason" : "Reason for Fine Change"}
+                  {updateAction === "cancel"
+                    ? "Cancellation Reason"
+                    : "Reason for Fine Change"}
                 </label>
                 <textarea
                   className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#0052CC] focus:border-transparent min-h-[100px]"
                   value={updateReason}
                   onChange={(e) => setUpdateReason(e.target.value)}
-                  placeholder={`Enter ${updateAction === "cancel" ? "cancellation" : "fine change"} reason`}
+                  placeholder={`Enter ${
+                    updateAction === "cancel" ? "cancellation" : "fine change"
+                  } reason`}
                 />
               </div>
             )}
