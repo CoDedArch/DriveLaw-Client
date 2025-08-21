@@ -20,6 +20,7 @@ import {
   useProcessPayment,
   useSubmitAppeal,
 } from "../data/queries";
+import EvidenceDisplay from "@/components/EvidenceDisplay";
 
 interface Offense {
   id: string;
@@ -563,12 +564,7 @@ const OffensesPage = () => {
                 </div>
 
                 <div>
-                  <label className="text-gray-600 text-sm font-medium block mb-2">
-                    Evidence
-                  </label>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-gray-700">{selectedOffense.evidence}</p>
-                  </div>
+                  <EvidenceDisplay />
                 </div>
               </div>
 

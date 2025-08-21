@@ -11,7 +11,12 @@ import {
   Activity,
   Shield,
   BarChart2,
+  RefreshCw,
+  AlertCircle,
 } from "lucide-react";
+import { useDashboardStats } from "../../../components/UseDashboardStatistics"; // Adjust import path
+
+
 
 interface StatCardProps {
   icon: React.ReactNode;
@@ -19,6 +24,7 @@ interface StatCardProps {
   value: string;
   change?: number;
   color: string;
+  loading?: boolean;
 }
 
 interface ActivityItem {
@@ -30,19 +36,10 @@ interface ActivityItem {
 }
 
 const AdminDashboard = () => {
-  // Mock data
-  const stats = {
-    totalUsers: 42,
-    monthlyOffenses: 128,
-    finesCollected: 9850,
-    pendingAppeals: 7,
-    activeOfficers: 23,
-    systemHealth: "Optimal",
-    databaseUsage: "45%",
-    serverLoad: "28%",
-    activeSessions: 19,
-  };
+  // Fetch dashboard stats with 5-minute auto-refresh
+  const { stats, changes, loading, error, refetch } = useDashboardStats();
 
+  // Mock data for recent activities (as requested)
   const recentActivities: ActivityItem[] = [
     {
       type: "New Offense",
@@ -74,40 +71,76 @@ const AdminDashboard = () => {
     },
   ];
 
-  const StatCard: React.FC<StatCardProps> = ({ icon, title, value, change, color }) => (
+  const StatCard: React.FC<StatCardProps> = ({ 
+    icon, 
+    title, 
+    value, 
+    change, 
+    color, 
+    loading = false 
+  }) => (
     <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
       <div className="flex items-center justify-between mb-4">
         <div className={`p-3 rounded-lg ${color}`}>
-          {icon}
+          {loading ? (
+            <RefreshCw className="h-6 w-6 text-white animate-spin" />
+          ) : (
+            icon
+          )}
         </div>
-        {change && (
+        {change !== undefined && !loading && (
           <div className={`text-sm ${change > 0 ? "text-green-600" : "text-red-600"}`}>
             {change > 0 ? "+" : ""}
             {change}%
           </div>
         )}
       </div>
-      <h3 className="text-2xl font-bold text-[#0A2540] mb-1">{value}</h3>
+      <h3 className="text-2xl font-bold text-[#0A2540] mb-1">
+        {loading ? "..." : value}
+      </h3>
       <p className="text-gray-600 text-sm">{title}</p>
     </div>
   );
+
+  // Format currency
+  const formatCurrency = (amount: number) => {
+    return `$${amount.toLocaleString()}`;
+  };
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center space-x-4 mb-2">
-            <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold text-[#0A2540]">
-                Admin Dashboard
-              </h1>
-              <p className="text-gray-600">
-                System overview and performance metrics
-              </p>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-4">
+              <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+              <div>
+                <h1 className="text-2xl font-bold text-[#0A2540]">
+                  Admin Dashboard
+                </h1>
+                <p className="text-gray-600">
+                  System overview and performance metrics
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              {error && (
+                <div className="flex items-center text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  Failed to load data
+                </div>
+              )}
+              <button
+                onClick={refetch}
+                disabled={loading}
+                className="p-2 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+                title="Refresh data"
+              >
+                <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+              </button>
             </div>
           </div>
         </div>
@@ -119,30 +152,34 @@ const AdminDashboard = () => {
           <StatCard
             icon={<Users className="h-6 w-6 text-white" />}
             title="Active Users"
-            value={stats.totalUsers.toString()}
-            change={5}
+            value={stats?.totalUsers?.toString() || "0"}
+            change={changes?.totalUsers}
             color="bg-gradient-to-r from-blue-500 to-blue-600"
+            loading={loading}
           />
           <StatCard
             icon={<Ticket className="h-6 w-6 text-white" />}
             title="Monthly Offenses"
-            value={stats.monthlyOffenses.toString()}
-            change={-2}
+            value={stats?.monthlyOffenses?.toString() || "0"}
+            change={changes?.monthlyOffenses}
             color="bg-gradient-to-r from-orange-500 to-orange-600"
+            loading={loading}
           />
           <StatCard
             icon={<CreditCard className="h-6 w-6 text-white" />}
             title="Fines Collected"
-            value={`$${stats.finesCollected.toLocaleString()}`}
-            change={12}
+            value={stats ? formatCurrency(stats.finesCollected) : "$0"}
+            change={changes?.finesCollected}
             color="bg-gradient-to-r from-green-500 to-green-600"
+            loading={loading}
           />
           <StatCard
             icon={<MessageSquare className="h-6 w-6 text-white" />}
             title="Pending Appeals"
-            value={stats.pendingAppeals.toString()}
-            change={3}
+            value={stats?.pendingAppeals?.toString() || "0"}
+            change={changes?.pendingAppeals}
             color="bg-gradient-to-r from-purple-500 to-purple-600"
+            loading={loading}
           />
         </div>
 
@@ -154,7 +191,9 @@ const AdminDashboard = () => {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
               <div className="h-3 w-3 rounded-full bg-green-500"></div>
-              <span className="text-[#0A2540] font-medium">{stats.systemHealth} Status</span>
+              <span className="text-[#0A2540] font-medium">
+                {stats?.systemHealth || "Loading..."} Status
+              </span>
             </div>
             <div className="text-gray-500 text-sm">
               Last updated: {new Date().toLocaleString()}
@@ -166,12 +205,14 @@ const AdminDashboard = () => {
               <h3 className="text-[#0A2540] font-semibold mb-3">Database</h3>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-gray-600 text-sm">Storage</span>
-                <span className="text-[#0A2540]">{stats.databaseUsage} used</span>
+                <span className="text-[#0A2540]">
+                  {stats?.databaseUsage || "0%"} used
+                </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-blue-500 h-2 rounded-full"
-                  style={{ width: stats.databaseUsage }}
+                  className="bg-blue-500 h-2 rounded-full transition-all duration-500"
+                  style={{ width: stats?.databaseUsage || "0%" }}
                 ></div>
               </div>
             </div>
@@ -180,12 +221,14 @@ const AdminDashboard = () => {
               <h3 className="text-[#0A2540] font-semibold mb-3">Server Load</h3>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-gray-600 text-sm">CPU Usage</span>
-                <span className="text-[#0A2540]">{stats.serverLoad}</span>
+                <span className="text-[#0A2540]">
+                  {stats?.serverLoad || "0%"}
+                </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-green-500 h-2 rounded-full"
-                  style={{ width: stats.serverLoad }}
+                  className="bg-green-500 h-2 rounded-full transition-all duration-500"
+                  style={{ width: stats?.serverLoad || "0%" }}
                 ></div>
               </div>
             </div>
@@ -196,12 +239,16 @@ const AdminDashboard = () => {
               </h3>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-gray-600 text-sm">Current Users</span>
-                <span className="text-[#0A2540]">{stats.activeSessions}</span>
+                <span className="text-[#0A2540]">
+                  {stats?.activeSessions || 0}
+                </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-purple-500 h-2 rounded-full"
-                  style={{ width: `${(stats.activeSessions / 30) * 100}%` }}
+                  className="bg-purple-500 h-2 rounded-full transition-all duration-500"
+                  style={{ 
+                    width: `${stats ? Math.min((stats.activeSessions / 30) * 100, 100) : 0}%` 
+                  }}
                 ></div>
               </div>
             </div>
