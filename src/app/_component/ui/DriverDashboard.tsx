@@ -187,7 +187,7 @@ const DriverDashboard = () => {
       <div className="max-w-7xl mx-auto p-6">
         <div className="space-y-8">
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatCard
               icon={FileText}
               title="Total Offenses"
@@ -198,7 +198,7 @@ const DriverDashboard = () => {
             <StatCard
               icon={DollarSign}
               title="Outstanding Fines"
-              value={`$${driverData?.totalFines.toFixed(2)}`}
+              value={`₵${driverData?.totalFines.toFixed(2)}`}
               change={15}
               color="bg-white"
             />
@@ -215,7 +215,7 @@ const DriverDashboard = () => {
               change={-5}
               color="bg-white"
             />
-          </div>
+            </div>
 
           {/* Alerts Section */}
           {driverData?.totalFines ||
@@ -290,7 +290,7 @@ const DriverDashboard = () => {
                         {offense.status}
                       </span>
                       <p className="text-[#0A2540] font-bold mt-2 text-xl">
-                        ${offense.fine.toFixed(2)}
+                        ₵{offense.fine.toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -452,7 +452,7 @@ const DriverDashboard = () => {
                       Fine Amount
                     </label>
                     <p className="font-semibold text-2xl">
-                      ${selectedOffense.fine.toFixed(2)}
+                      ₵{selectedOffense.fine.toFixed(2)}
                     </p>
                   </div>
                   <div>

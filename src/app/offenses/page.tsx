@@ -538,7 +538,7 @@ const OffensesPage = () => {
                         Fine Amount
                       </label>
                       <p className="font-semibold text-[#0A2540] text-2xl">
-                        ${selectedOffense.fine.toFixed(2)}
+                        ₵{selectedOffense.fine.toFixed(2)}
                       </p>
                     </div>
                     <div>
@@ -601,7 +601,7 @@ const OffensesPage = () => {
                   </h3>
                   <p className="text-gray-600 text-sm">#{selectedOffense.id}</p>
                   <p className="text-2xl font-bold text-[#0A2540] mt-2">
-                    ${selectedOffense.fine.toFixed(2)}
+                    ₵{selectedOffense.fine.toFixed(2)}
                   </p>
                 </div>
 
@@ -672,7 +672,7 @@ const OffensesPage = () => {
                   <span>
                     {paymentProcessing
                       ? "Processing..."
-                      : `Pay $${selectedOffense?.fine.toFixed(2)}`}
+                      : `Pay ₵${selectedOffense?.fine.toFixed(2)}`}
                   </span>
                 </button>
               </div>
